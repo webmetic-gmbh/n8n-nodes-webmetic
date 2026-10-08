@@ -2,81 +2,87 @@
 
 This is an n8n community node that lets you use Webmetic in your n8n workflows.
 
-[Webmetic](https://webmetic.de) provides company visitor tracking data for sales and marketing teams.
+[Webmetic](https://webmetic.de) shows which companies visit your website, and finds the right contact person at them, for sales and marketing teams.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
+[Before you start](#before-you-start)  
 [Installation](#installation)  
+[Connect your account](#connect-your-account)  
 [Operations](#operations)  
-[Credentials](#credentials)  
+[Your first workflow](#your-first-workflow)  
+[If something goes wrong](#if-something-goes-wrong)  
 [Compatibility](#compatibility)  
-[Usage](#usage)  
 [Resources](#resources)  
+
+## Before you start
+
+1. **Your Visitor Intelligence API key.** In your Webmetic dashboard, open [API keys](https://app.webmetic.de/?menu=api_details) and copy the **Visitor Intelligence** key. It starts with `wmtc_`. No key yet? Click **Generate key** there.
+2. **For contact persons only: the contact setup.** Open the [contact setup](https://app.webmetic.de/?menu=icp_settings) once, choose your target group and confirm. This also unlocks your welcome credits.
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation and install `n8n-nodes-webmetic`.
+
+## Connect your account
+
+1. Add the **Webmetic** node to a workflow.
+2. Under **Credential to connect with**, choose **Create new credential**.
+3. Paste your Visitor Intelligence API key and click **Save**. n8n checks the key right away.
 
 ## Operations
 
-* **New Visits**
-  * Get: Retrieve a list of companies that have visited a specified domain for the first time
-* **Intensive Visits**
-  * Get: Retrieve a list of companies that have had intensive visits to a specified domain
-* **Returning Visits**
-  * Get: Retrieve a list of companies that have visited a specified domain multiple times
-* **Contact**
-  * Find: Find a contact person at a company that visited your website and reveal their e-mail or phone number (costs credits)
+* **New Visits** › Get: companies that visited your website for the first time
+* **Intensive Visits** › Get: companies that spent a lot of time on your website
+* **Returning Visits** › Get: companies that came back several times
+* **Contact** › Find: a contact person at a company that visited your website, with e-mail or phone number (costs credits)
 
-## Credentials
+### Getting visits
 
-To use this node, you need:
+- **Domain**: your website, exactly as it appears in your Webmetic dashboard (e.g. `example.com`).
+- **From Date** and **To Date** (optional): the time window, by default the last 30 days. Relative times such as `-1 hour`, `-7 days` or `-45 minutes` work, as do dates like `2026-01-31` and `now`.
 
-1. A Webmetic API key - Get yours from [Webmetic](https://webmetic.de)
-2. Configure the API key in n8n's credentials
-
-## Compatibility
-
-* Requires n8n version 0.172.0 or later
-* Tested with n8n version 1.0.0+
-
-## Usage
-
-1. Add the Webmetic node to your workflow
-2. Create new Webmetic API credentials:
-   - Enter your API key (starts with `wmtc_`)
-3. Configure the node:
-   - Select "New Visits", "Intensive Visits", or "Returning Visits" as the resource
-   - Select "Get" as the operation
-   - Enter the domain you want to track (e.g., `example.com`)
-   - Optional: Configure additional fields for date filtering:
-     - **From Date**: Start date or relative time period (default: "-30 days")
-     - **To Date**: End date or "now" for current date (default: "now")
-4. Execute the node to retrieve company visitor data
-
-The node returns valuable sales intelligence about companies and their visiting behavior on your domain.
-
-Since node version 2, the visit operations return one item per company, so the next node runs once per company. Workflows created with version 1 keep the single item holding the `result` array.
+The node outputs one item per company, so the next node runs once for each company. Workflows created with an older version of this node (node version 1) keep receiving a single item that holds the `result` list.
 
 ### Finding a contact person
 
-Connect **Contact → Find** after a visits operation. For each company it searches the contacts at that company, takes the first one who has the requested data on file, and reveals it:
+Add **Contact → Find** after a visits node. For each company it looks for contact persons, takes the first one who has the requested data on file, and reveals it.
 
-- **Company ID**: defaults to `{{ $json.company_id }}` from the visits node. Contacts are only available for companies that visited your website.
-- **Reveal**: E-mail and LinkedIn (2 credits), phone numbers (8 credits), or both (10 credits). Only delivered data is charged; running the node again for the same company returns the same person for free.
-- **Departments** and **Minimum Level**: the same choices as the contact setup in the Webmetic dashboard. Left empty, the target group from that setup applies.
+- **Company ID**: filled in automatically from the visits node (`{{ $json.company_id }}`). Contacts are only available for companies that visited your website.
+- **Departments** and **Minimum Level**: the same choices as the contact setup in your Webmetic dashboard. Leave them empty to use your setup.
+- **Reveal**: e-mail and LinkedIn (2 credits), phone numbers (8 credits), or both (10 credits). You only pay for data that is delivered. Running the node again for the same company returns the same person for free.
 
-The output has `name`, `job_title`, `email`, `linkedin`, `direct_phone`, `mobile_phone` and `credits_remaining`. Contacts are limited to the company's country; `country_fallback: true` means nobody matched there and the contact may work at a sister company. If nobody fits, the node outputs no item for that company and charges nothing.
+The output contains `name`, `job_title`, `email`, `linkedin`, `direct_phone`, `mobile_phone` and `credits_remaining`. Contacts are limited to the company's country. `country_fallback: true` means nobody matched there and the contact may work at a sister company abroad.
 
-Before the first use, complete the contact setup once in the Webmetic dashboard (app.webmetic.de → a company → Ansprechpartner). It records your consent and unlocks the welcome credits.
+If nobody fits at a company, the node outputs no item for it and nothing is charged.
 
-### Date Format Examples:
-- **Relative times**: `-30 days`, `-12 hours`, `-45 minutes`, `-7 days`
-- **Absolute dates**: `2023-01-01`, `2023-12-31`  
-- **Current**: `now`
-- **Minutes**: `-15 minutes`, `-30 minutes`, `-90 minutes`
+## Your first workflow
+
+**New companies every hour, with a contact person, to your sales team:**
+
+1. **Schedule Trigger**: every hour.
+2. **Webmetic** › New Visits › Get: your domain, **From Date** `-1 hour`. Match the time window to the schedule, otherwise the same companies come back on every run.
+3. **Webmetic** › Contact › Find: Reveal **E-mail and LinkedIn** to start with.
+4. **Send Email**, **Microsoft Teams** or **Slack**: for example "`{{ $json.company_name }}` visited our website. Contact: `{{ $json.name }}`, `{{ $json.job_title }}`, `{{ $json.email }}`".
+
+## If something goes wrong
+
+| Message in n8n | What to do |
+|---|---|
+| Webmetic does not recognize this API key | Use the **Visitor Intelligence** key from [API keys](https://app.webmetic.de/?menu=api_details), not the Enrichment or Data Layer key. |
+| This domain is not in your Webmetic account | Enter the domain exactly as in your Webmetic dashboard, with or without `www.` |
+| The contact setup in Webmetic is missing | Open the [contact setup](https://app.webmetic.de/?menu=icp_settings) once and confirm. |
+| Not enough Webmetic credits | Top up via your credit balance at the top of the [Webmetic dashboard](https://app.webmetic.de). |
+| This company has not visited your website | Pass the Company ID from a Webmetic visits node. |
+| Too many requests to Webmetic | Webmetic allows one request per second. Add a **Wait** node between Webmetic nodes. |
+| Find returns no item | Nobody at that company fits your departments and level. Nothing was charged. |
+
+## Compatibility
+
+* Tested with n8n 2.11
+* Node version 2 needs this package from version 0.5.0 on
 
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-* [Webmetic API documentation](https://hub.webmetic.de/docs)
+* [Webmetic API reference](https://hub.webmetic.de/docs) for developers
