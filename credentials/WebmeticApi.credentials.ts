@@ -34,13 +34,8 @@ export class WebmeticApi implements ICredentialType {
   test: ICredentialTestRequest = {
     request: {
       baseURL: "https://hub.webmetic.de",
-      url: "/new-visits",
+      url: "/my-domains",
       method: "GET",
-      qs: {
-        domain: "example.com",
-        from_date: "-1 days",
-        to_date: "now",
-      },
     },
   };
 }

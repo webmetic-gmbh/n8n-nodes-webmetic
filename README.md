@@ -25,6 +25,8 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
   * Get: Retrieve a list of companies that have had intensive visits to a specified domain
 * **Returning Visits**
   * Get: Retrieve a list of companies that have visited a specified domain multiple times
+* **Contact**
+  * Find: Find a contact person at a company that visited your website and reveal their e-mail or phone number (costs credits)
 
 ## Credentials
 
@@ -53,6 +55,20 @@ To use this node, you need:
 4. Execute the node to retrieve company visitor data
 
 The node returns valuable sales intelligence about companies and their visiting behavior on your domain.
+
+Since node version 2, the visit operations return one item per company, so the next node runs once per company. Workflows created with version 1 keep the single item holding the `result` array.
+
+### Finding a contact person
+
+Connect **Contact → Find** after a visits operation. For each company it searches the contacts at that company, takes the first one who has the requested data on file, and reveals it:
+
+- **Company ID**: defaults to `{{ $json.company_id }}` from the visits node. Contacts are only available for companies that visited your website.
+- **Reveal**: E-mail and LinkedIn (2 credits), phone numbers (8 credits), or both (10 credits). Only delivered data is charged; running the node again for the same company returns the same person for free.
+- **Departments** and **Minimum Level**: the same choices as the contact setup in the Webmetic dashboard. Left empty, the target group from that setup applies.
+
+The output has `name`, `job_title`, `email`, `linkedin`, `direct_phone`, `mobile_phone` and `credits_remaining`. Contacts are limited to the company's country; `country_fallback: true` means nobody matched there and the contact may work at a sister company. If nobody fits, the node outputs no item for that company and charges nothing.
+
+Before the first use, complete the contact setup once in the Webmetic dashboard (app.webmetic.de → a company → Ansprechpartner). It records your consent and unlocks the welcome credits.
 
 ### Date Format Examples:
 - **Relative times**: `-30 days`, `-12 hours`, `-45 minutes`, `-7 days`

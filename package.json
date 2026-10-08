@@ -1,13 +1,14 @@
 {
   "name": "n8n-nodes-webmetic",
-  "version": "0.4.1",
-  "description": "n8n node for Webmetic API - Get company visits data (new, intensive, and returning visitors) with minute-level date filtering",
+  "version": "0.5.0",
+  "description": "n8n node for Webmetic API - Get company visits data (new, intensive, and returning visitors) with minute-level date filtering, and find contact persons at visiting companies",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
     "webmetic",
     "visitor-tracking",
     "lead-generation",
+    "contacts",
     "sales-intelligence",
     "marketing"
   ],
@@ -29,8 +30,8 @@
     "build": "npx rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
+    "lint": "eslint --ext .ts nodes credentials package.json",
+    "lintfix": "eslint --ext .ts nodes credentials package.json --fix",
     "prepublishOnly": "npm run build"
   },
   "files": [

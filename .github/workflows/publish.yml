@@ -1,0 +1,51 @@
+# Publishes the package to npm when a version tag (e.g. 0.5.0) is pushed.
+#
+# n8n only accepts updates of verified community nodes that were published
+# from GitHub Actions with an npm provenance statement (since May 1 2026).
+# Adapted from the n8n-nodes-starter workflow, with this project's own build.
+#
+# One-time setup: on npmjs.com, package settings → Publish access →
+# Trusted Publishers → GitHub Actions, owner webmetic-gmbh, repository
+# n8n-nodes-webmetic, workflow publish.yml. No token is stored in the repo.
+#
+# Release: bump "version" in package.json, commit, then
+#   git tag 0.5.0 && git push origin 0.5.0
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write   # OIDC token for trusted publishing and the provenance statement
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Tag matches package.json version
+        run: test "$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Publish
+        # prepublishOnly runs the build
+        run: npm publish --provenance --access public
