@@ -32,9 +32,9 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-* **New Visits** › Get: companies that visited your website for the first time
-* **Intensive Visits** › Get: companies that spent a lot of time on your website
-* **Returning Visits** › Get: companies that came back several times
+* **New Visit** › Get: companies that visited your website for the first time
+* **Intensive Visit** › Get: companies that spent a lot of time on your website
+* **Returning Visit** › Get: companies that came back several times
 * **Contact** › Find: a contact person at a company that visited your website, with e-mail or phone number (costs credits)
 
 ### Getting visits
@@ -61,7 +61,7 @@ If nobody fits at a company, the node outputs no item for it and nothing is char
 **New companies every hour, with a contact person, to your sales team:**
 
 1. **Schedule Trigger**: every hour.
-2. **Webmetic** › New Visits › Get: your domain, **From Date** `-1 hour`. Match the time window to the schedule, otherwise the same companies come back on every run.
+2. **Webmetic** › New Visit › Get: your domain, **From Date** `-1 hour`. Match the time window to the schedule, otherwise the same companies come back on every run.
 3. **Webmetic** › Contact › Find: Reveal **E-mail and LinkedIn** to start with.
 4. **Send Email**, **Microsoft Teams** or **Slack**: for example "`{{ $json.company_name }}` visited our website. Contact: `{{ $json.name }}`, `{{ $json.job_title }}`, `{{ $json.email }}`".
 

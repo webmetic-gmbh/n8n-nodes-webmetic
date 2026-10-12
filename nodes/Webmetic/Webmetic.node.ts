@@ -127,7 +127,7 @@ export class Webmetic implements INodeType {
   description: INodeTypeDescription = {
     displayName: "Webmetic",
     name: "webmetic",
-    icon: "file:webmetic.svg",
+    icon: { light: "file:webmetic.svg", dark: "file:webmetic-dark.svg" },
     group: ["transform"],
     version: [1, 2],
     defaultVersion: 2,
@@ -138,6 +138,7 @@ export class Webmetic implements INodeType {
     },
     inputs: [NodeConnectionType.Main],
     outputs: [NodeConnectionType.Main],
+    usableAsTool: true,
     credentials: [
       {
         name: "webmeticApi",
@@ -159,19 +160,19 @@ export class Webmetic implements INodeType {
         noDataExpression: true,
         options: [
           {
-            name: "New Visits",
+            name: "New Visit",
             value: "newVisits",
             description:
               "Get companies that have visited a domain for the first time",
           },
           {
-            name: "Intensive Visits",
+            name: "Intensive Visit",
             value: "intensiveVisits",
             description:
               "Get companies that have had intensive visits to a domain",
           },
           {
-            name: "Returning Visits",
+            name: "Returning Visit",
             value: "returningVisits",
             description:
               "Get companies that have visited a domain multiple times",
@@ -481,7 +482,7 @@ export class Webmetic implements INodeType {
             type: "string",
             default: "-30 days",
             placeholder: "-30 days",
-            description: "Starting date/time or relative date like '-30 days', '-12 hours', '-45 minutes'. Examples: '2023-01-01', '-7 days', '-30 minutes', 'now'",
+            description: "Starting date/time or relative date like '-30 days', '-12 hours', '-45 minutes'. Examples: '2023-01-01', '-7 days', '-30 minutes', 'now'.",
             routing: {
               request: {
                 qs: {
@@ -496,7 +497,7 @@ export class Webmetic implements INodeType {
             type: "string",
             default: "now",
             placeholder: "now",
-            description: "Ending date/time or 'now' for current date/time. Examples: '2023-01-31', '-15 minutes', 'now'",
+            description: "Ending date/time or 'now' for current date/time. Examples: '2023-01-31', '-15 minutes', 'now'.",
             routing: {
               request: {
                 qs: {

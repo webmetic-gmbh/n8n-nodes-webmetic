@@ -2,18 +2,20 @@ import {
   IAuthenticateGeneric,
   ICredentialTestRequest,
   ICredentialType,
+  Icon,
   INodeProperties,
 } from "n8n-workflow";
 
 export class WebmeticApi implements ICredentialType {
   name = "webmeticApi";
   displayName = "Webmetic API";
+  icon: Icon = { light: "file:webmetic.svg", dark: "file:webmetic-dark.svg" };
   documentationUrl = "https://www.npmjs.com/package/n8n-nodes-webmetic";
   properties: INodeProperties[] = [
     {
       displayName:
         'Visitor Intelligence API key: copy it from <a href="https://app.webmetic.de/?menu=api_details" target="_blank">API keys</a> in your Webmetic dashboard. It starts with wmtc_. No key yet? Click Generate key there.',
-      name: "apiKeyNotice",
+      name: "setupNotice",
       type: "notice",
       default: "",
     },
