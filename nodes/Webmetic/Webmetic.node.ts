@@ -112,6 +112,17 @@ async function explainErrors(
 
 // Version 2 outputs one item per company; version 1 (existing workflows)
 // keeps the single item holding the `result` array.
+// Declarative nodes return items without a link to their input item, and n8n
+// can only guess that link when input and output counts match. Without it,
+// $('Earlier node').item breaks after Find drops a company nobody fits.
+async function pairWithInput(
+  this: IExecuteSingleFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const item = this.getItemIndex();
+  return items.map((entry) => ({ ...entry, pairedItem: { item } }));
+}
+
 const oneItemPerCompany: INodeRequestOutput = {
   postReceive: [
     explainErrors,
@@ -120,6 +131,7 @@ const oneItemPerCompany: INodeRequestOutput = {
       enabled: "={{ $version >= 2 }}",
       properties: { property: "result" },
     },
+    pairWithInput,
   ],
 };
 
@@ -304,6 +316,7 @@ export class Webmetic implements INodeType {
                     type: "filter",
                     properties: { pass: "={{ $responseItem.found }}" },
                   },
+                  pairWithInput,
                 ],
               },
             },
